@@ -8,8 +8,10 @@ WORKDIR /usr/src/app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Remove package-lock.json if it contains workspace references and install dependencies
+RUN npm cache clean --force && \
+    rm -f package-lock.json && \
+    npm install
 
 # Copy source code
 COPY . .

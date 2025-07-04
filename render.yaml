@@ -14,15 +14,15 @@ services:
     # Environment variables with defaults
     envVars:
       - key: JITSI_DOMAIN
-        value: jitsi-meet.onrender.com
+        value: jitsi-meet-akqz.onrender.com
       - key: JITSI_MUC_DOMAIN
-        value: conference.jitsi-meet.onrender.com
+        value: conference.jitsi-meet-akqz.onrender.com
       - key: JITSI_FOCUS_DOMAIN
-        value: focus.jitsi-meet.onrender.com
+        value: focus.jitsi-meet-akqz.onrender.com
       - key: JITSI_AUTH_DOMAIN
-        value: auth.jitsi-meet.onrender.com
+        value: auth.jitsi-meet-akqz.onrender.com
       - key: JITSI_GUEST_DOMAIN
-        value: guest.jitsi-meet.onrender.com
+        value: guest.jitsi-meet-akqz.onrender.com
       - key: BOSH_URL
         value: https://meet.jit.si/http-bind
       - key: WEBSOCKET_URL
@@ -40,7 +40,7 @@ services:
       - key: ENABLE_TRANSCRIPTION
         value: "false"
       - key: RESOLUTION
-        value: "720"
+        value: "1080"
       - key: START_BITRATE
         value: "2500"
       - key: DESKTOP_SHARING_FRAME_RATE
