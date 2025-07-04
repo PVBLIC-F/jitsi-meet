@@ -281,10 +281,8 @@ echo "Updating HTML metadata..."
 update_title
 update_meta_description
 
-# Process nginx configuration with environment variables
-echo "Processing nginx configuration..."
-envsubst '\$BOSH_URL \$WEBSOCKET_URL' < /etc/nginx/conf.d/default.conf > /etc/nginx/conf.d/default.conf.tmp
-mv /etc/nginx/conf.d/default.conf.tmp /etc/nginx/conf.d/default.conf
+# Nginx configuration is static (no environment variable substitution needed)
+echo "Nginx configuration ready..."
 
 # Test nginx configuration
 echo "Testing nginx configuration..."
