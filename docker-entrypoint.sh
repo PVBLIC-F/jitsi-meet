@@ -33,6 +33,11 @@ export ENABLE_WELCOME_PAGE="${ENABLE_WELCOME_PAGE:-true}"
 export ENABLE_GUEST_DOMAIN="${ENABLE_GUEST_DOMAIN:-false}"
 export ENABLE_JAAS_BRANDING="${ENABLE_JAAS_BRANDING:-false}"
 
+# Google OAuth configuration
+export ENABLE_GOOGLE_AUTH="${ENABLE_GOOGLE_AUTH:-false}"
+export GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID:-}"
+export GOOGLE_ALLOWED_DOMAINS="${GOOGLE_ALLOWED_DOMAINS:-}"
+
 # Function to process SSI includes
 process_ssi_includes() {
     local input_file="$1"
@@ -46,6 +51,13 @@ process_ssi_includes() {
     # Process virtual includes - these should become regular script tags
     sed -i 's|<script><!--#include virtual="/config.js" --></script>|<script src="config.js"></script>|g' "$output_file"
     sed -i 's|<script><!--#include virtual="/interface_config.js" --></script>|<script src="interface_config.js"></script>|g' "$output_file"
+    
+    # Add Google OAuth script if enabled
+    if [ "$ENABLE_GOOGLE_AUTH" = "true" ]; then
+        echo "Adding Google OAuth script to HTML"
+        # Insert Google OAuth script before the closing </head> tag
+        sed -i 's|</head>|    <script>window.GOOGLE_CLIENT_ID = "'"$GOOGLE_CLIENT_ID"'";</script>\n    <script src="google-auth.js"></script>\n</head>|g' "$output_file"
+    fi
     
     # Remove other SSI includes
     sed -i 's|<!--#include virtual="head.html" -->||g' "$output_file"
@@ -326,6 +338,31 @@ if [ -f /usr/share/nginx/html/do_external_connect.js ]; then
     echo "✓ do_external_connect.js created successfully"
 else
     echo "✗ Failed to create do_external_connect.js"
+fi
+
+# Verify Google OAuth configuration
+if [ "$ENABLE_GOOGLE_AUTH" = "true" ]; then
+    echo "=== Google OAuth Configuration ==="
+    if [ -f /usr/share/nginx/html/google-auth.js ]; then
+        echo "✓ google-auth.js is available"
+    else
+        echo "✗ google-auth.js not found"
+    fi
+    
+    if [ -n "$GOOGLE_CLIENT_ID" ] && [ "$GOOGLE_CLIENT_ID" != "YOUR_GOOGLE_CLIENT_ID" ]; then
+        echo "✓ Google Client ID configured"
+    else
+        echo "⚠ Google Client ID not configured - please set GOOGLE_CLIENT_ID environment variable"
+    fi
+    
+    if [ -n "$GOOGLE_ALLOWED_DOMAINS" ]; then
+        echo "✓ Domain restrictions: $GOOGLE_ALLOWED_DOMAINS"
+    else
+        echo "ℹ No domain restrictions configured (all Google accounts allowed)"
+    fi
+    echo "================================="
+else
+    echo "ℹ Google OAuth disabled (set ENABLE_GOOGLE_AUTH=true to enable)"
 fi
 
 # Update HTML metadata

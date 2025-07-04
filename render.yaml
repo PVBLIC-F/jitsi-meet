@@ -73,6 +73,14 @@ services:
         value: "false"
       - key: ENABLE_JAAS_BRANDING
         value: "false"
+      
+      # Google OAuth Configuration (optional)
+      - key: ENABLE_GOOGLE_AUTH
+        value: "false"
+      - key: GOOGLE_CLIENT_ID
+        value: ""
+      - key: GOOGLE_ALLOWED_DOMAINS
+        value: ""
     
     # Build configuration
     buildCommand: echo "Building with Docker..."
