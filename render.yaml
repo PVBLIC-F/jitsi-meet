@@ -76,9 +76,9 @@ services:
       
       # Google OAuth Configuration (optional)
       - key: ENABLE_GOOGLE_AUTH
-        value: "false"
+        value: "true"
       - key: GOOGLE_CLIENT_ID
-        value: ""
+        value: "211549274808-aumg4jijjk0ia549aprpakq87a8qu2hi.apps.googleusercontent.com"
       - key: GOOGLE_ALLOWED_DOMAINS
         value: ""
     
