@@ -48,6 +48,7 @@ COPY --from=builder /usr/src/app/manifest.json /usr/share/nginx/html/
 
 # Copy Google OAuth integration
 COPY google-auth.js /usr/share/nginx/html/
+COPY test-oauth.html /usr/share/nginx/html/
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
