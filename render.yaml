@@ -1,0 +1,87 @@
+services:
+  - type: web
+    name: jitsi-meet
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: ./
+    
+    # Health check configuration
+    healthCheckPath: /health
+    
+    # Resource configuration
+    plan: standard
+    
+    # Environment variables with defaults
+    envVars:
+      - key: JITSI_DOMAIN
+        value: jitsi-meet.onrender.com
+      - key: JITSI_MUC_DOMAIN
+        value: conference.jitsi-meet.onrender.com
+      - key: JITSI_FOCUS_DOMAIN
+        value: focus.jitsi-meet.onrender.com
+      - key: JITSI_AUTH_DOMAIN
+        value: auth.jitsi-meet.onrender.com
+      - key: JITSI_GUEST_DOMAIN
+        value: guest.jitsi-meet.onrender.com
+      - key: BOSH_URL
+        value: https://meet.jit.si/http-bind
+      - key: WEBSOCKET_URL
+        value: wss://meet.jit.si/xmpp-websocket
+      - key: JITSI_MEET_TITLE
+        value: Jitsi Meet
+      - key: JITSI_MEET_DESCRIPTION
+        value: Join a WebRTC video conference powered by the Jitsi Videobridge
+      - key: DISABLE_HTTPS
+        value: "false"
+      - key: ENABLE_RECORDING
+        value: "false"
+      - key: ENABLE_LIVE_STREAMING
+        value: "false"
+      - key: ENABLE_TRANSCRIPTION
+        value: "false"
+      - key: RESOLUTION
+        value: "720"
+      - key: START_BITRATE
+        value: "2500"
+      - key: DESKTOP_SHARING_FRAME_RATE
+        value: "5"
+      - key: DISABLE_SIMULCAST
+        value: "false"
+      - key: ENABLE_LAYER_SUSPENSION
+        value: "false"
+      - key: ENABLE_STATS_ID
+        value: "false"
+      - key: ENABLE_REMB
+        value: "false"
+      - key: ENABLE_TCC
+        value: "false"
+      - key: ENABLE_OPUS_RED
+        value: "false"
+      - key: ENABLE_AUDIO_LEVELS
+        value: "true"
+      - key: ENABLE_NOISY_MIC_DETECTION
+        value: "true"
+      - key: ENABLE_NO_AUDIO_DETECTION
+        value: "true"
+      - key: ENABLE_CLOSE_PAGE
+        value: "false"
+      - key: ENABLE_PREJOIN_PAGE
+        value: "false"
+      - key: ENABLE_WELCOME_PAGE
+        value: "true"
+      - key: ENABLE_GUEST_DOMAIN
+        value: "false"
+      - key: ENABLE_JAAS_BRANDING
+        value: "false"
+    
+    # Build configuration
+    buildCommand: echo "Building with Docker..."
+    
+    # Scaling configuration
+    numInstances: 1
+    
+    # Disk configuration (optional)
+    disk:
+      name: jitsi-meet-disk
+      mountPath: /var/log/nginx
+      sizeGB: 1 
