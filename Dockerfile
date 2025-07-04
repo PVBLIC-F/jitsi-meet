@@ -11,7 +11,7 @@ COPY package*.json ./
 # Remove package-lock.json if it contains workspace references and install dependencies
 RUN npm cache clean --force && \
     rm -f package-lock.json && \
-    npm install
+    npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .
