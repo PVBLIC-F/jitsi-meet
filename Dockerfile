@@ -11,10 +11,10 @@ WORKDIR /usr/src/app
 # Copy package files
 COPY package*.json ./
 
-# Remove package-lock.json if it contains workspace references and install dependencies
+# Fix workspace references in package-lock.json and install dependencies
 RUN npm cache clean --force && \
-    rm -f package-lock.json && \
-    npm install --legacy-peer-deps
+    sed -i 's/"workspace:\*"/"*"/g' package-lock.json 2>/dev/null || true && \
+    npm ci --legacy-peer-deps || npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .
