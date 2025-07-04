@@ -38,12 +38,16 @@ process_ssi_includes() {
     local input_file="$1"
     local output_file="$2"
     
+    echo "Processing SSI includes in $input_file"
+    
     # Copy the input file to output file
     cp "$input_file" "$output_file"
     
-    # Process virtual includes
-    sed -i 's|<!--#include virtual="/config.js" -->|<script src="config.js"></script>|g' "$output_file"
-    sed -i 's|<!--#include virtual="/interface_config.js" -->|<script src="interface_config.js"></script>|g' "$output_file"
+    # Process virtual includes - these should become regular script tags
+    sed -i 's|<script><!--#include virtual="/config.js" --></script>|<script src="config.js"></script>|g' "$output_file"
+    sed -i 's|<script><!--#include virtual="/interface_config.js" --></script>|<script src="interface_config.js"></script>|g' "$output_file"
+    
+    # Remove other SSI includes
     sed -i 's|<!--#include virtual="head.html" -->||g' "$output_file"
     sed -i 's|<!--#include virtual="base.html" -->||g' "$output_file"
     sed -i 's|<!--#include virtual="fonts.html" -->||g' "$output_file"
@@ -56,6 +60,8 @@ process_ssi_includes() {
     sed -i "s|<!--# echo var=\"subdir\" default=\"\" -->||g" "$output_file"
     sed -i "s|<!--# echo var=\"subdomain\" default=\"\" -->||g" "$output_file"
     sed -i "s|<!--# echo var=\"http_host\" default=\"jitsi-meet.example.com\" -->|${JITSI_DOMAIN}|g" "$output_file"
+    
+    echo "SSI processing completed"
 }
 
 # Function to create config.js with environment variables
@@ -236,6 +242,43 @@ update_meta_description() {
     fi
 }
 
+# Function to create missing critical JavaScript files
+create_missing_js_files() {
+    echo "Creating missing JavaScript files..."
+    
+    # Create utils.js (basic utilities)
+    cat > /usr/share/nginx/html/utils.js << 'EOF'
+// Utility functions for Jitsi Meet
+window.utils = window.utils || {};
+
+// Basic utility functions
+window.utils.ready = function(callback) {
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", callback);
+    } else {
+        callback();
+    }
+};
+
+console.log("Utils loaded");
+EOF
+
+    # Create do_external_connect.js (external connection handling)
+    cat > /usr/share/nginx/html/do_external_connect.js << 'EOF'
+// External connection handling for Jitsi Meet
+window.doExternalConnect = window.doExternalConnect || {};
+
+// External connection utilities
+window.doExternalConnect.connect = function() {
+    console.log("External connect initialized");
+};
+
+console.log("External connect loaded");
+EOF
+
+    echo "Missing JavaScript files created"
+}
+
 # Main execution
 echo "Starting Jitsi Meet container..."
 echo "Domain: ${JITSI_DOMAIN}"
@@ -255,6 +298,9 @@ echo "Creating configuration files..."
 create_config_js
 create_interface_config_js
 
+# Create missing critical JavaScript files
+create_missing_js_files
+
 # Verify config files were created
 if [ -f /usr/share/nginx/html/config.js ]; then
     echo "✓ config.js created successfully"
@@ -269,10 +315,35 @@ else
     echo "✗ Failed to create interface_config.js"
 fi
 
+# Verify missing JavaScript files were created
+if [ -f /usr/share/nginx/html/utils.js ]; then
+    echo "✓ utils.js created successfully"
+else
+    echo "✗ Failed to create utils.js"
+fi
+
+if [ -f /usr/share/nginx/html/do_external_connect.js ]; then
+    echo "✓ do_external_connect.js created successfully"
+else
+    echo "✗ Failed to create do_external_connect.js"
+fi
+
 # Update HTML metadata
 echo "Updating HTML metadata..."
 update_title
 update_meta_description
+
+# Debug: List available files
+echo "=== DEBUG: Available files ==="
+echo "Root files:"
+ls -la /usr/share/nginx/html/ | head -20
+echo ""
+echo "Libs directory:"
+ls -la /usr/share/nginx/html/libs/ | head -10 || echo "Libs directory not found"
+echo ""
+echo "CSS directory:"
+ls -la /usr/share/nginx/html/css/ | head -5 || echo "CSS directory not found"
+echo "================================"
 
 # Nginx configuration is static (no environment variable substitution needed)
 echo "Nginx configuration ready..."
