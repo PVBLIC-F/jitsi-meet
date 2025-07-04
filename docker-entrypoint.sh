@@ -60,76 +60,46 @@ process_ssi_includes() {
 
 # Function to create config.js with environment variables
 create_config_js() {
-    cat > /usr/share/nginx/html/config.js << EOF
+    echo "Creating config.js with domain: ${JITSI_DOMAIN}"
+    
+    # Remove any existing config.js first
+    rm -f /usr/share/nginx/html/config.js
+    
+    cat > /usr/share/nginx/html/config.js << 'EOF'
 var config = {
     hosts: {
-        domain: '${JITSI_DOMAIN}',
-        muc: '${JITSI_MUC_DOMAIN}',
-        focus: '${JITSI_FOCUS_DOMAIN}',
-        ${ENABLE_GUEST_DOMAIN:+anonymousdomain: '${JITSI_GUEST_DOMAIN}',}
-        ${ENABLE_GUEST_DOMAIN:+authdomain: '${JITSI_AUTH_DOMAIN}',}
+        domain: 'JITSI_DOMAIN_PLACEHOLDER',
+        muc: 'JITSI_MUC_DOMAIN_PLACEHOLDER',
+        focus: 'JITSI_FOCUS_DOMAIN_PLACEHOLDER'
     },
     
-    bosh: '${BOSH_URL}',
-    websocket: '${WEBSOCKET_URL}',
+    bosh: 'BOSH_URL_PLACEHOLDER',
+    websocket: 'WEBSOCKET_URL_PLACEHOLDER',
     
-    // Disable https if specified
-    ${DISABLE_HTTPS:+useStunTurn: true,}
-    
-    // Recording
-    ${ENABLE_RECORDING:+fileRecordingsEnabled: true,}
-    ${ENABLE_RECORDING:+recordingService: { enabled: true, sharingEnabled: true },}
-    
-    // Live streaming
-    ${ENABLE_LIVE_STREAMING:+liveStreamingEnabled: true,}
-    
-    // Transcription
-    ${ENABLE_TRANSCRIPTION:+transcribingEnabled: true,}
-    
-    // Video configuration
-    resolution: ${RESOLUTION},
-    constraints: {
-        video: {
-            height: {
-                ideal: ${RESOLUTION},
-                max: ${RESOLUTION},
-                min: 240
-            }
-        }
-    },
-    
-    // Bitrate configuration
-    startBitrate: ${START_BITRATE},
-    desktopSharingFrameRate: {
-        min: ${DESKTOP_SHARING_FRAME_RATE},
-        max: ${DESKTOP_SHARING_FRAME_RATE}
-    },
-    
-    // Feature flags
-    disableSimulcast: ${DISABLE_SIMULCAST},
-    enableLayerSuspension: ${ENABLE_LAYER_SUSPENSION},
-    enableStatsID: ${ENABLE_STATS_ID},
-    enableRemb: ${ENABLE_REMB},
-    enableTcc: ${ENABLE_TCC},
-    enableOpusRed: ${ENABLE_OPUS_RED},
-    disableAudioLevels: $([ "$ENABLE_AUDIO_LEVELS" = "false" ] && echo "true" || echo "false"),
-    enableNoisyMicDetection: ${ENABLE_NOISY_MIC_DETECTION},
-    enableNoAudioDetection: ${ENABLE_NO_AUDIO_DETECTION},
-    enableClosePage: ${ENABLE_CLOSE_PAGE},
-    enableWelcomePage: ${ENABLE_WELCOME_PAGE},
-    
-    // Prejoin page
-    ${ENABLE_PREJOIN_PAGE:+prejoinPageEnabled: true,}
-    
-    // JaaS branding
-    ${ENABLE_JAAS_BRANDING:+enableJaaSBranding: true,}
-    
-    // Default configuration
+    // Basic configuration
+    enableWelcomePage: true,
     enableUserRolesBasedOnToken: false,
     enableFeaturesBasedOnToken: false,
     enableInsecureRoomNameWarning: false,
     enableAutomaticUrlCopy: false,
     requireDisplayName: false,
+    
+    // Video configuration
+    resolution: 720,
+    constraints: {
+        video: {
+            height: {
+                ideal: 720,
+                max: 720,
+                min: 240
+            }
+        }
+    },
+    
+    // Feature flags
+    disableSimulcast: false,
+    enableNoAudioDetection: true,
+    enableNoisyMicDetection: true,
     
     // P2P configuration
     p2p: {
@@ -159,19 +129,28 @@ var config = {
         noAutoPlayVideo: false
     }
 };
-
-// Make config available globally
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = config;
-}
 EOF
+
+    # Replace placeholders with actual values
+    sed -i "s|JITSI_DOMAIN_PLACEHOLDER|${JITSI_DOMAIN}|g" /usr/share/nginx/html/config.js
+    sed -i "s|JITSI_MUC_DOMAIN_PLACEHOLDER|${JITSI_MUC_DOMAIN}|g" /usr/share/nginx/html/config.js
+    sed -i "s|JITSI_FOCUS_DOMAIN_PLACEHOLDER|${JITSI_FOCUS_DOMAIN}|g" /usr/share/nginx/html/config.js
+    sed -i "s|BOSH_URL_PLACEHOLDER|${BOSH_URL}|g" /usr/share/nginx/html/config.js
+    sed -i "s|WEBSOCKET_URL_PLACEHOLDER|${WEBSOCKET_URL}|g" /usr/share/nginx/html/config.js
+    
+    echo "Config.js created successfully"
 }
 
 # Function to create interface_config.js with environment variables
 create_interface_config_js() {
-    cat > /usr/share/nginx/html/interface_config.js << EOF
+    echo "Creating interface_config.js"
+    
+    # Remove any existing interface_config.js first
+    rm -f /usr/share/nginx/html/interface_config.js
+    
+    cat > /usr/share/nginx/html/interface_config.js << 'EOF'
 var interfaceConfig = {
-    APP_NAME: '${JITSI_MEET_TITLE}',
+    APP_NAME: 'JITSI_MEET_TITLE_PLACEHOLDER',
     
     // Toolbar configuration
     TOOLBAR_BUTTONS: [
@@ -194,7 +173,7 @@ var interfaceConfig = {
     
     // UI configuration
     GENERATE_ROOMNAMES_ON_WELCOME_PAGE: true,
-    DISPLAY_WELCOME_PAGE_CONTENT: ${ENABLE_WELCOME_PAGE},
+    DISPLAY_WELCOME_PAGE_CONTENT: true,
     DISPLAY_WELCOME_PAGE_TOOLBAR_ADDITIONAL_CONTENT: false,
     DISPLAY_WELCOME_FOOTER: true,
     SHOW_JITSI_WATERMARK: false,
@@ -202,7 +181,7 @@ var interfaceConfig = {
     SHOW_BRAND_WATERMARK: false,
     BRAND_WATERMARK_LINK: '',
     SHOW_POWERED_BY: false,
-    SHOW_PROMOTIONAL_CLOSE_PAGE: ${ENABLE_CLOSE_PAGE},
+    SHOW_PROMOTIONAL_CLOSE_PAGE: false,
     RANDOM_AVATAR_URL_PREFIX: false,
     RANDOM_AVATAR_URL_SUFFIX: false,
     FILM_STRIP_MAX_HEIGHT: 120,
@@ -235,12 +214,12 @@ var interfaceConfig = {
     HIDE_KICK_BUTTON_FOR_GUESTS: false,
     TILE_VIEW_MAX_COLUMNS: 5
 };
-
-// Make interface config available globally
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = interfaceConfig;
-}
 EOF
+
+    # Replace placeholder with actual value
+    sed -i "s|JITSI_MEET_TITLE_PLACEHOLDER|${JITSI_MEET_TITLE}|g" /usr/share/nginx/html/interface_config.js
+    
+    echo "Interface_config.js created successfully"
 }
 
 # Function to update title in HTML
@@ -271,10 +250,24 @@ if [ -f /usr/share/nginx/html/index.html ]; then
     mv /usr/share/nginx/html/index.html.processed /usr/share/nginx/html/index.html
 fi
 
-# Create configuration files
+# Create configuration files (AFTER HTML processing to ensure they overwrite any existing files)
 echo "Creating configuration files..."
 create_config_js
 create_interface_config_js
+
+# Verify config files were created
+if [ -f /usr/share/nginx/html/config.js ]; then
+    echo "✓ config.js created successfully"
+    head -5 /usr/share/nginx/html/config.js
+else
+    echo "✗ Failed to create config.js"
+fi
+
+if [ -f /usr/share/nginx/html/interface_config.js ]; then
+    echo "✓ interface_config.js created successfully"
+else
+    echo "✗ Failed to create interface_config.js"
+fi
 
 # Update HTML metadata
 echo "Updating HTML metadata..."

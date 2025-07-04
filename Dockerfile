@@ -44,6 +44,7 @@ COPY --from=builder /usr/src/app/lang /usr/share/nginx/html/lang
 COPY --from=builder /usr/src/app/*.html /usr/share/nginx/html/
 COPY --from=builder /usr/src/app/*.js /usr/share/nginx/html/
 COPY --from=builder /usr/src/app/manifest.json /usr/share/nginx/html/
+# Note: config.js and interface_config.js will be overwritten at runtime by docker-entrypoint.sh
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
